@@ -46,3 +46,34 @@ func (c *Client) GetWebhookSubscriptions(params *WebhookSubscriptionsParams) (*W
 
 	return webhooks, nil
 }
+
+// WebhookResponse ...
+type WebhookResponse struct {
+	ResponseCommon
+}
+
+// WebhookPayload ...
+type WebhookPayload struct {
+	Mode         string `json:"hub.mode"`
+	Topic        string `json:"hub.topic"`
+	Callback     string `json:"hub.callback"`
+	LeaseSeconds int    `json:"hub.lease_seconds,omitempty"`
+	Secret       string `json:"secret,omitempty"`
+}
+
+// PostWebhookSubscription ...
+func (c *Client) PostWebhookSubscription(payload *WebhookPayload) (*WebhookResponse, error) {
+	resp, err := c.post("/webhooks/hub", nil, payload)
+	if err != nil {
+		return nil, err
+	}
+
+	webhook := &WebhookResponse{}
+	webhook.StatusCode = resp.StatusCode
+	webhook.Header = resp.Header
+	webhook.Error = resp.Error
+	webhook.ErrorStatus = resp.ErrorStatus
+	webhook.ErrorMessage = resp.ErrorMessage
+
+	return webhook, nil
+}
